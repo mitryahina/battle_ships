@@ -5,6 +5,10 @@ letters = letters[:10]
 
 
 def read_file(filename):
+    """
+    Reads file representing battleship field
+    :return: 2-d numpy array with locations of ships
+    """
     with open(filename, "r") as f:
         data = f.readlines()
         res = []
@@ -15,23 +19,38 @@ def read_file(filename):
 
 
 def convert_coordinates(coordinates):
+    """
+    Convert coordinates to the list indices
+    >>> convert_coordinates(("A", 1))
+    (0, 0)
+    """
     row = coordinates[1] - 1
     column = letters.index(coordinates[0])
     return row, column
 
 
 def has_ship(coordinates, field):
+    """
+    Check whether there is a ship in the cell
+    """
     if field[coordinates[0], coordinates[1]] == '*':
         return True
     return False
 
 
 def is_horizontal(coordinates, field):
+    """
+    Check if the ship is horizontal
+    """
     return has_ship((coordinates[0], coordinates[1] + 1), field) or \
            has_ship((coordinates[0], coordinates[1] - 1), field)
 
 
 def ship_coordinates(coordinates, field):
+    """
+    Find all coordinates of a ship by given coordinate.
+    Return the list of ship coordinates
+    """
     if has_ship(coordinates, field):
         ship = [coordinates]
 
@@ -64,12 +83,19 @@ def ship_coordinates(coordinates, field):
 
 
 def ship_size(coordinates, field):
+    """
+    Find the length of the ship
+    """
     return len(ship_coordinates(coordinates, field)) if has_ship(coordinates, field) else 0
 
 
 def is_valid(field):
+    """
+    Check whether the game field is valid
+    """
     taken_coordinates = []
     count_ships = [0]*4
+    # counting ships
     try:
         for row in range(10):
             for cell in range(10):
@@ -78,13 +104,17 @@ def is_valid(field):
                     count_ships[ship_size((row, cell), field) - 1] += 1
     except IndexError:
         return False
-
+    # check if the amount of ship is correct and if they are not crossing
     if count_ships == [i for i in range(4, 0, -1)] and len(taken_coordinates) == len(set(taken_coordinates)):
         return True
     return False
 
 
 def get_end_coordinates(start_coordinates, size):
+    """
+    Randomly choose the end coordinates of the ship by
+    its start coordinates and length
+    """
     size -= 1
     x = random.choice([start_coordinates[0] + size, start_coordinates[0], start_coordinates[0] - size])
     y = start_coordinates[1]
@@ -102,16 +132,19 @@ def get_end_coordinates(start_coordinates, size):
 
 
 def covered_area(coordinates1, coordinates2):
+    """
+    Find the area covered by the ship
+    """
     area = set()
     ship = set()
 
     if coordinates1 > coordinates2:
         coordinates1, coordinates2 = coordinates2, coordinates1
-
-    for line in range(coordinates1[0], coordinates2[0] + 1):
-        for column in range(coordinates1[1], coordinates2[1] + 1):
-            ship.add((line, column))
-
+    # find the ship coordinates
+    for row in range(coordinates1[0], coordinates2[0] + 1):
+        for cell in range(coordinates1[1], coordinates2[1] + 1):
+            ship.add((row, cell))
+    # add the touching cells
     for coordinate in ship:
         for i in [-1, 0, 1]:
             for j in [-1, 0, 1]:
@@ -121,6 +154,9 @@ def covered_area(coordinates1, coordinates2):
 
 
 def generate_field():
+    """
+    Randomly generates field
+    """
     field = [[" " for i in range(10)] for i in range(10)]
     free_coordinates = [(i, j) for i in range(10) for j in range(10)]
     ship_types = [4, 3, 3, 2, 2, 2, 1, 1, 1, 1]
@@ -141,8 +177,27 @@ def generate_field():
 
 
 def get_field():
+    """
+    Get valid random battleship field
+    """
     while True:
         field = generate_field()
         if is_valid(np.array(field)):
             break
     return field
+
+
+def field_to_str(field, filename=None):
+    """
+    Convert field to screen representation
+    """
+    print("  ", "   ".join([str(i) for i in range(1,11)]))
+    for line in range(len(field)):
+        print(letters[line], " | ".join(field[line]))
+        print("____"*10)
+    # if there is a file to write to
+    if filename:
+        with open(filename, "w") as f:
+            for line in field:
+                print(line, file=f)
+
