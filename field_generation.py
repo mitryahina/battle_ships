@@ -26,7 +26,7 @@ def convert_coordinates(coordinates):
     """
     row = coordinates[1] - 1
     column = letters.index(coordinates[0])
-    return row, column
+    return column, row
 
 
 def has_ship(coordinates, field):
@@ -43,7 +43,7 @@ def is_horizontal(coordinates, field):
     Check if the ship is horizontal
     """
     return has_ship((coordinates[0], coordinates[1] + 1), field) or \
-           has_ship((coordinates[0], coordinates[1] - 1), field)
+        has_ship((coordinates[0], coordinates[1] - 1), field)
 
 
 def ship_coordinates(coordinates, field):
@@ -55,26 +55,30 @@ def ship_coordinates(coordinates, field):
         ship = [coordinates]
 
         for i in range(1, 4):
-            if (coordinates[0] + i) < 10 and has_ship((coordinates[0] + i, coordinates[1]), field):
+            if (coordinates[0] + i) < 10 and\
+                    has_ship((coordinates[0] + i, coordinates[1]), field):
                 ship.append((coordinates[0] + i, coordinates[1]))
             else:
                 break
 
         for i in range(1, 4):
-            if (coordinates[0] - i) > 0 and has_ship((coordinates[0] - i, coordinates[1]), field):
+            if (coordinates[0] - i) > 0 and\
+                    has_ship((coordinates[0] - i, coordinates[1]), field):
                 ship.append((coordinates[0] - i, coordinates[1]))
             else:
                 break
 
         if len(ship) == 1:
             for i in range(1, 4):
-                if (coordinates[1] + i) < 10 and has_ship((coordinates[0], coordinates[1] + i), field):
+                if (coordinates[1] + i) < 10 and\
+                        has_ship((coordinates[0], coordinates[1] + i), field):
                     ship.append((coordinates[0], coordinates[1] + i))
                 else:
                     break
 
             for i in range(1, 4):
-                if (coordinates[1] - i) > 0 and has_ship((coordinates[0], coordinates[1] - i), field):
+                if (coordinates[1] - i) > 0 and\
+                        has_ship((coordinates[0], coordinates[1] - i), field):
                     ship.append((coordinates[0], coordinates[1] - i))
                 else:
                     break
@@ -86,7 +90,8 @@ def ship_size(coordinates, field):
     """
     Find the length of the ship
     """
-    return len(ship_coordinates(coordinates, field)) if has_ship(coordinates, field) else 0
+    return len(ship_coordinates(coordinates, field))\
+        if has_ship(coordinates, field) else 0
 
 
 def is_valid(field):
@@ -99,13 +104,15 @@ def is_valid(field):
     try:
         for row in range(10):
             for cell in range(10):
-                if (row, cell) not in taken_coordinates and has_ship((row, cell), field):
+                if (row, cell) not in taken_coordinates and\
+                        has_ship((row, cell), field):
                     taken_coordinates.extend(ship_coordinates((row, cell), field))
                     count_ships[ship_size((row, cell), field) - 1] += 1
     except IndexError:
         return False
     # check if the amount of ship is correct and if they are not crossing
-    if count_ships == [i for i in range(4, 0, -1)] and len(taken_coordinates) == len(set(taken_coordinates)):
+    if count_ships == [i for i in range(4, 0, -1)] and\
+            len(taken_coordinates) == len(set(taken_coordinates)):
         return True
     return False
 
@@ -116,14 +123,18 @@ def get_end_coordinates(start_coordinates, size):
     its start coordinates and length
     """
     size -= 1
-    x = random.choice([start_coordinates[0] + size, start_coordinates[0], start_coordinates[0] - size])
+    x = random.choice([start_coordinates[0] + size,
+                       start_coordinates[0], start_coordinates[0] - size])
     y = start_coordinates[1]
     if x > 9:
-        x = random.choice([start_coordinates[0], start_coordinates[0] - size])
+        x = random.choice([start_coordinates[0],
+                           start_coordinates[0] - size])
     elif x < 0:
-        x = random.choice([start_coordinates[0], start_coordinates[0] + size])
+        x = random.choice([start_coordinates[0],
+                           start_coordinates[0] + size])
     elif x == start_coordinates[0]:
-        y = random.choice([start_coordinates[1] + size, start_coordinates[1] - size])
+        y = random.choice([start_coordinates[1] + size,
+                           start_coordinates[1] - size])
         if y < 0:
             y = start_coordinates[1] + size
         elif y > 9:
@@ -191,7 +202,7 @@ def field_to_str(field, filename=None):
     """
     Convert field to screen representation
     """
-    print("  ", "   ".join([str(i) for i in range(1,11)]))
+    print("  ", "   ".join([str(i) for i in range(1, 11)]))
     for line in range(len(field)):
         print(letters[line], " | ".join(field[line]))
         print("____"*10)
@@ -200,4 +211,3 @@ def field_to_str(field, filename=None):
         with open(filename, "w") as f:
             for line in field:
                 print(line, file=f)
-
